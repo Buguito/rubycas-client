@@ -31,6 +31,7 @@ module CASClient
       @proxy_url    = conf[:proxy_url]
       @service_url  = conf[:service_url]
       @force_ssl_verification  = conf[:force_ssl_verification]
+      @ssl_cert_store = conf[:ssl_cert_store]
       @proxy_callback_url  = conf[:proxy_callback_url]
       
       @username_session_key         = conf[:username_session_key] || :cas_user
@@ -137,7 +138,7 @@ module CASClient
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = (uri.scheme == 'https')
       https.verify_mode = (@force_ssl_verification ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE)
-      
+      https.ca_file = @ssl_cert_store 
       begin
         raw_res = https.start do |conn|
           conn.get("#{uri.path}?#{uri.query}")
@@ -182,6 +183,7 @@ module CASClient
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = (uri.scheme == 'https')
       https.verify_mode = (@force_ssl_verification ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE)
+      https.ca_file = @ssl_cert_store 
       res = https.post(uri.path, ';')
       
       raise CASException, res.body unless res.kind_of? Net::HTTPSuccess
@@ -236,7 +238,7 @@ module CASClient
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = (uri.scheme == 'https')
       https.verify_mode = (@force_ssl_verification ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE)
-      
+      https.ca_file = @ssl_cert_store  
       begin
         raw_res = https.start do |conn|
           conn.get("#{uri.path}?#{uri.query}")
@@ -267,6 +269,7 @@ module CASClient
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = (uri.scheme == 'https')
       https.verify_mode = (@force_ssl_verification ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE)
+      https.ca_file = @ssl_cert_store 
       https.start {|conn| conn.request(req) }
     end
     
